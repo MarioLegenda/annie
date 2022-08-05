@@ -1,0 +1,21 @@
+configuration:
+  array: ['value1', 'value2', 'value3']
+  simpleString: "value"
+  simpleNumber: 5,
+  arrayList:
+    - value1
+    - value2
+    - value3
+  complex:
+    entryString: "string"
+    entryNumber: 5
+    entryArray: ['value1', 'value1', 5]
+    entry:
+      arrayList:
+        - value1
+        - value2
+        - value3
+options:
+  - option1
+  - option2
+  - option3
