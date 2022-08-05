@@ -46,14 +46,14 @@ if err != nil {
 }
 
 ann.StepInto("configuration").
-	IsString("simpleString").
-	IsNumeric("simpleNumber").
-	StepInto("complex").
-	StepInto("entry").
-	IsArray("arrayList").
-	StepOut().
-	StepOut().
-	IsArray("arrayList")
+    IsString("simpleString").
+    IsNumeric("simpleNumber").
+    StepInto("complex").
+    StepInto("entry").
+    IsArray("arrayList").
+    StepOut().
+    StepOut().
+    IsArray("arrayList")
 
 errs := ann.Errors()
 
