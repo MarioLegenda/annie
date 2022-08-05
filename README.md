@@ -54,6 +54,7 @@ ann.StepInto("configuration").
 	StepOut().
 	StepOut().
 	IsArray("arrayList")
+
 errs := ann.Errors()
 
 if len(errs) != 0 {
