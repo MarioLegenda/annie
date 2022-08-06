@@ -21,14 +21,14 @@ func assignIfEmpty(node internalAction, name string) bool {
 
 	if !ok {
 		if valueEmpty(node.GetData()) {
-			node.AddError(fmt.Sprintf("Node %s cannot be empty", name))
+			node.AddError(fmt.Sprintf("Node '%s' cannot be empty", name))
 
 			return true
 		}
 	}
 
 	if valueEmpty(d[name]) {
-		node.AddError(fmt.Sprintf("Node %s cannot be empty", name))
+		node.AddError(fmt.Sprintf("Node '%s' cannot be empty", name))
 
 		return true
 	}

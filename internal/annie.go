@@ -31,7 +31,7 @@ func (a *annie) StepInto(name string) anniePkg.Node {
 }
 
 func (a *annie) StepOut() anniePkg.Node {
-	return &node{}
+	return a
 }
 
 func (a *annie) CannotBeEmpty(node string) anniePkg.Node {

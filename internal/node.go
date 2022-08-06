@@ -21,24 +21,38 @@ func (a *node) AddError(err string) {
 
 func (a *node) StepInto(name string) anniePkg.Node {
 	if ok := valueEmpty(a.data[name]); ok {
-		a.annie.errors = append(a.annie.errors, buildError(fmt.Sprintf("Cannot step into a node %s. Node is empty", name)))
+		a.annie.errors = append(a.annie.errors, buildError(fmt.Sprintf("Cannot step into a node '%s'. Node is empty", name)))
 	}
 
 	d, ok := a.data[name].(map[string]interface{})
 
 	if !ok {
-		a.annie.errors = append(a.annie.errors, buildError(fmt.Sprintf("Cannot step into a node %s. Node is not an indexable type (map[string]interface{})", name)))
+		a.annie.errors = append(a.annie.errors, buildError(fmt.Sprintf("Cannot step into a node '%s'. Node is not an indexable type (map[string]interface{})", name)))
 	}
 
 	return &node{annie: a.annie, data: d, parent: a}
 }
 
 func (a *node) StepOut() anniePkg.Node {
-	return a.parent
+	a.data = nil
+
+	if a.parent == nil {
+		return a.annie
+	}
+
+	p := &node{
+		data:   a.parent.data,
+		parent: a.parent.parent,
+		annie:  a.parent.annie,
+	}
+
+	a.parent = nil
+
+	return p
 }
 
 func (a *node) CannotBeEmpty(node string) anniePkg.Node {
-	assignIfEmpty(a.annie, node)
+	assignIfEmpty(a, node)
 
 	return a
 }

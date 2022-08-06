@@ -24,24 +24,20 @@ var _ = Describe("Creating annie", func() {
 	})
 })
 
-var _ = Describe("Minimal assertions", func() {
-	Context("on base keys", func() {
-		It("should CannotBeEmpty succeed", func() {
-			ann, err := NewAnnie("test_base_config.yml")
-			gomega.Expect(err).Should(gomega.BeNil())
-			gomega.Expect(ann).ShouldNot(gomega.BeNil())
+var _ = Describe("Failures and safety", func() {
+	It("should fail if stepping into primitive type node", func() {
+		ann, err := NewAnnie("test_complex_config.yml")
+		gomega.Expect(err).Should(gomega.BeNil())
+		gomega.Expect(ann).ShouldNot(gomega.BeNil())
 
-			ann.CannotBeEmpty("configuration")
+		ann.StepInto("options")
 
-			errs := ann.Errors()
+		ann.Close()
+	})
+})
 
-			gomega.Expect(errs).ShouldNot(gomega.BeEmpty())
-			gomega.Expect(errs).Should(gomega.HaveLen(1))
-			gomega.Expect(errs[0]).ShouldNot(gomega.BeNil())
-
-			ann.Close()
-		})
-
+var _ = Describe("Base actions", func() {
+	Context("on any keys", func() {
 		It("should not be able to step into a node if the node is empty", func() {
 			ann, err := NewAnnie("test_base_config.yml")
 			gomega.Expect(err).Should(gomega.BeNil())
@@ -112,6 +108,60 @@ var _ = Describe("Minimal assertions", func() {
 			errs := ann.Errors()
 
 			gomega.Expect(errs).Should(gomega.BeEmpty())
+
+			ann.Close()
+		})
+	})
+})
+
+var _ = Describe("Minimal assertions", func() {
+	Context("on any keys", func() {
+		It("should CannotBeEmpty succeed", func() {
+			ann, err := NewAnnie("test_base_config.yml")
+			gomega.Expect(err).Should(gomega.BeNil())
+			gomega.Expect(ann).ShouldNot(gomega.BeNil())
+
+			ann.CannotBeEmpty("configuration")
+
+			errs := ann.Errors()
+
+			gomega.Expect(errs).ShouldNot(gomega.BeEmpty())
+			gomega.Expect(errs).Should(gomega.HaveLen(1))
+			gomega.Expect(errs[0]).ShouldNot(gomega.BeNil())
+
+			ann.Close()
+		})
+
+		It("should evaluate multiple configuration value", func() {
+			ann, err := NewAnnie("test_complex_config.yml")
+			gomega.Expect(err).Should(gomega.BeNil())
+			gomega.Expect(ann).ShouldNot(gomega.BeNil())
+
+			ann.
+				CannotBeEmpty("configuration").
+				StepInto("configuration").
+				CannotBeEmpty("array").
+				CannotBeEmpty("simpleString").
+				IsString("simpleString").
+				IsArray("arrayList").
+				CannotBeEmpty("complex").
+				StepInto("complex").
+				CannotBeEmpty("entryString").
+				IsString("entryString").
+				StepInto("entry").
+				CannotBeEmpty("arrayList").
+				IsArray("arrayList").
+				StepOut().
+				StepOut().
+				IsNumeric("simpleNumber").
+				StepOut().
+				CannotBeEmpty("options").
+				IsArray("options")
+
+			errs := ann.Errors()
+
+			gomega.Expect(errs).Should(gomega.BeEmpty())
+			gomega.Expect(errs).Should(gomega.HaveLen(0))
 
 			ann.Close()
 		})
