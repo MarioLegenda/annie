@@ -3,7 +3,6 @@ package internal
 import (
 	anniePkg "annie/pkg"
 	"fmt"
-	"strconv"
 )
 
 type internalAction interface {
@@ -14,6 +13,14 @@ type internalAction interface {
 type annie struct {
 	data   map[string]interface{}
 	errors []error
+}
+
+func (a *annie) AddError(err string) {
+	a.errors = append(a.errors, buildError(err))
+}
+
+func (a *annie) Errors() []error {
+	return a.errors
 }
 
 func (a *annie) StepInto(name string) anniePkg.Node {
@@ -50,52 +57,25 @@ func (a *annie) CannotBeEmpty(node string) anniePkg.Node {
 
 func (a *annie) IsMap(name string) anniePkg.Node {
 	assignIfEmpty(a, name)
-
-	d, ok := a.data[name].(map[string]interface{})
-
-	if !ok {
-		a.errors = append(a.errors, buildError(fmt.Sprintf("Node '%s' is not a map", name)))
-
-		return a
-	}
-
-	if len(d) == 0 {
-		a.errors = append(a.errors, buildError(fmt.Sprintf("Node '%s' is not a map", name)))
-
-		return a
-	}
+	isMap(a, name)
 
 	return a
 }
 
 func (a *annie) IsString(node string) anniePkg.Node {
-	_, ok := a.data[node].(string)
-
-	if !ok {
-		a.AddError(fmt.Sprintf("Node '%s' is not a string", node))
-	}
+	isString(a, node)
 
 	return a
 }
 
 func (a *annie) IsArray(node string) anniePkg.Node {
-	_, ok := a.data[node].([]interface{})
-
-	if !ok {
-		a.AddError(fmt.Sprintf("Node '%s' is not an array", node))
-	}
+	isArray(a, node)
 
 	return a
 }
 
 func (a *annie) IsNumeric(node string) anniePkg.Node {
-	v, _ := a.data[node].(string)
-
-	_, err := strconv.Atoi(v)
-
-	if err != nil {
-		a.AddError(fmt.Sprintf("Node '%s' is not a numeric value", node))
-	}
+	isNumeric(a, node)
 
 	return a
 }
@@ -107,12 +87,4 @@ func (a *annie) Close() {
 
 func (a *annie) GetData() interface{} {
 	return a.data
-}
-
-func (a *annie) AddError(err string) {
-	a.errors = append(a.errors, buildError(err))
-}
-
-func (a *annie) Errors() []error {
-	return a.errors
 }
