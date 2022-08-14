@@ -2,6 +2,7 @@ package internal
 
 import (
 	anniePkg "annie/pkg"
+	"bytes"
 	"errors"
 	"fmt"
 	"gopkg.in/yaml.v3"
@@ -19,9 +20,15 @@ func NewAnnie(path string) (anniePkg.Annie, error) {
 		return nil, buildError(fmt.Sprintf("An error occurred trying to read provided file %s: %s", path, err.Error()))
 	}
 
+	trimmed := bytes.Trim(data, " ")
+
+	if len(trimmed) == 0 {
+		return nil, buildError(fmt.Sprintf("Config file '%s' is empty", path))
+	}
+
 	var unwrap map[string]interface{}
 
-	err = yaml.Unmarshal(data, &unwrap)
+	err = yaml.Unmarshal(trimmed, &unwrap)
 	if err != nil {
 		return nil, buildError(fmt.Sprintf("An error occurred trying to unmarshal provided yaml file %s: %s", path, err.Error()))
 	}

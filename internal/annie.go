@@ -18,13 +18,21 @@ type annie struct {
 
 func (a *annie) StepInto(name string) anniePkg.Node {
 	if ok := valueEmpty(a.data[name]); ok {
-		a.errors = append(a.errors, buildError(fmt.Sprintf("Cannot step into a node %s. Node is empty", name)))
+		a.errors = append(a.errors, buildError(fmt.Sprintf("Cannot step into a node '%s'. Node is empty", name)))
 	}
 
 	d, ok := a.data[name].(map[string]interface{})
 
 	if !ok {
-		a.errors = append(a.errors, buildError(fmt.Sprintf("Cannot step into a node %s. Node is not an indexable type (map[string]interface{})", name)))
+		a.errors = append(a.errors, buildError(fmt.Sprintf("Cannot step into a node '%s'. Node is not an indexable type (map[string]interface{})", name)))
+
+		return &node{annie: a, data: nil}
+	}
+
+	if len(d) == 0 {
+		a.errors = append(a.errors, buildError(fmt.Sprintf("Cannot step into a node '%s'. Node is not an indexable type (map[string]interface{})", name)))
+
+		return &node{annie: a, data: nil}
 	}
 
 	return &node{annie: a, data: d}
@@ -40,11 +48,31 @@ func (a *annie) CannotBeEmpty(node string) anniePkg.Node {
 	return a
 }
 
+func (a *annie) IsMap(name string) anniePkg.Node {
+	assignIfEmpty(a, name)
+
+	d, ok := a.data[name].(map[string]interface{})
+
+	if !ok {
+		a.errors = append(a.errors, buildError(fmt.Sprintf("Node '%s' is not a map", name)))
+
+		return a
+	}
+
+	if len(d) == 0 {
+		a.errors = append(a.errors, buildError(fmt.Sprintf("Node '%s' is not a map", name)))
+
+		return a
+	}
+
+	return a
+}
+
 func (a *annie) IsString(node string) anniePkg.Node {
 	_, ok := a.data[node].(string)
 
 	if !ok {
-		a.AddError(fmt.Sprintf("Node %s is not a string", node))
+		a.AddError(fmt.Sprintf("Node '%s' is not a string", node))
 	}
 
 	return a
@@ -54,7 +82,7 @@ func (a *annie) IsArray(node string) anniePkg.Node {
 	_, ok := a.data[node].([]interface{})
 
 	if !ok {
-		a.AddError(fmt.Sprintf("Node %s is not an array", node))
+		a.AddError(fmt.Sprintf("Node '%s' is not an array", node))
 	}
 
 	return a
@@ -66,7 +94,7 @@ func (a *annie) IsNumeric(node string) anniePkg.Node {
 	_, err := strconv.Atoi(v)
 
 	if err != nil {
-		a.AddError(fmt.Sprintf("Node %s is not a string", node))
+		a.AddError(fmt.Sprintf("Node '%s' is not a numeric value", node))
 	}
 
 	return a

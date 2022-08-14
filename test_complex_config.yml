@@ -1,7 +1,8 @@
 configuration:
+  empty:
   array: ['value1', 'value2', 'value3']
   simpleString: "value"
-  simpleNumber: 5,
+  simpleNumber: 5
   arrayList:
     - value1
     - value2
@@ -19,3 +20,6 @@ options:
   - option1
   - option2
   - option3
+empty_base_value:
+string_base_value: "some string"
+numeric_base_value: 5

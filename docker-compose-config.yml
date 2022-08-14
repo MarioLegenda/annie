@@ -1,0 +1,50 @@
+version: "3.9"
+services:
+  api:
+    build:
+      context: api
+      dockerfile: ./Dockerfile
+    env_file: api/.env
+    ports:
+      - 3002:3002
+    volumes:
+      - ./api:/app
+      - ./api/images:/app/images
+      - ./api/var/log:/app/var/log
+    depends_on:
+      - nginx
+  emulator:
+    stop_grace_period: 30s
+    build:
+      context: emulator
+      dockerfile: ./Dockerfile
+    env_file: emulator/.env
+    ports:
+      - 3001:3001
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./emulator/var/log:/app/var/log
+    depends_on:
+      - nginx
+  nginx:
+    build:
+      context: nginx
+      dockerfile: ./Dockerfile
+    ports:
+      - "80:80"
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: rebelsource
+      MONGO_INITDB_ROOT_PASSWORD: rebelsource
+    volumes:
+      - './storage:/data/db'
+  cache:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --loglevel warning --requirepass 3v1sWlMoj6DQTxn4e8pid0eupvwHuDjZfjsUteBupyAD1GruB6ORLSjm8k4rpFPLOdV26KVedcl/YrXl
+volumes:
+  db_data:

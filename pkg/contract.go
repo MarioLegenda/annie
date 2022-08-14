@@ -10,6 +10,7 @@ type Validations interface {
 	IsString(node string) Node
 	IsNumeric(node string) Node
 	IsArray(node string) Node
+	IsMap(node string) Node
 }
 
 type Evaluator interface {

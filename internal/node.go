@@ -3,6 +3,7 @@ package internal
 import (
 	anniePkg "annie/pkg"
 	"fmt"
+	"strconv"
 )
 
 type node struct {
@@ -28,6 +29,14 @@ func (a *node) StepInto(name string) anniePkg.Node {
 
 	if !ok {
 		a.annie.errors = append(a.annie.errors, buildError(fmt.Sprintf("Cannot step into a node '%s'. Node is not an indexable type (map[string]interface{})", name)))
+
+		return a
+	}
+
+	if len(d) == 0 {
+		a.annie.errors = append(a.annie.errors, buildError(fmt.Sprintf("Cannot step into a node '%s'. Node is not an indexable type (map[string]interface{})", name)))
+
+		return a
 	}
 
 	return &node{annie: a.annie, data: d, parent: a}
@@ -52,7 +61,29 @@ func (a *node) StepOut() anniePkg.Node {
 }
 
 func (a *node) CannotBeEmpty(node string) anniePkg.Node {
-	assignIfEmpty(a, node)
+	if a.data != nil {
+		assignIfEmpty(a, node)
+	}
+
+	return a
+}
+
+func (a *node) IsMap(name string) anniePkg.Node {
+	assignIfEmpty(a, name)
+
+	d, ok := a.data[name].(map[string]interface{})
+
+	if !ok {
+		a.annie.errors = append(a.annie.errors, buildError(fmt.Sprintf("Node '%s' is not a map", name)))
+
+		return a
+	}
+
+	if len(d) == 0 {
+		a.annie.errors = append(a.annie.errors, buildError(fmt.Sprintf("Node '%s' is not a map", name)))
+
+		return a
+	}
 
 	return a
 }
@@ -61,7 +92,7 @@ func (a *node) IsString(node string) anniePkg.Node {
 	_, ok := a.data[node].(string)
 
 	if !ok {
-		a.AddError(fmt.Sprintf("Node %s is not a string", node))
+		a.AddError(fmt.Sprintf("Node '%s' is not a string", node))
 	}
 
 	return a
@@ -71,17 +102,29 @@ func (a *node) IsArray(node string) anniePkg.Node {
 	_, ok := a.data[node].([]interface{})
 
 	if !ok {
-		a.AddError(fmt.Sprintf("Node %s is not an array", node))
+		a.AddError(fmt.Sprintf("Node '%s' is not an array", node))
 	}
 
 	return a
 }
 
 func (a *node) IsNumeric(node string) anniePkg.Node {
-	_, ok := a.data[node].(string)
+	v, ok := a.data[node].(string)
+
+	if ok {
+		_, err := strconv.Atoi(v)
+
+		if err != nil {
+			a.AddError(fmt.Sprintf("Node '%s' is not a numeric value", node))
+		}
+
+		return a
+	}
+
+	_, ok = a.data[node].(int)
 
 	if !ok {
-		a.AddError(fmt.Sprintf("Node %s is not a string", node))
+		a.AddError(fmt.Sprintf("Node '%s' is not a numeric value", node))
 	}
 
 	return a
