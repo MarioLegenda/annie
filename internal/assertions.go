@@ -93,12 +93,13 @@ func isNumeric(node internalAction, name string, msg string) {
 
 func isArray(node internalAction, name string, msg string) {
 	d, ok := node.GetData().(map[string]interface{})
-	if msg == "" {
-		msg = fmt.Sprintf("Node '%s' is not an array", name)
-	}
 
 	if !ok {
 		node.AddError(msg)
+	}
+
+	if msg == "" {
+		msg = fmt.Sprintf("Node '%s' is not an array", name)
 	}
 
 	_, ok = d[name].([]interface{})

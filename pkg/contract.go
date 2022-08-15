@@ -11,6 +11,7 @@ type Validations interface {
 	IsNumeric(args ...interface{}) Node
 	IsArray(args ...interface{}) Node
 	IsMap(args ...interface{}) Node
+	Validate(name string, callback func(value interface{}) string) Node
 }
 
 type Evaluator interface {

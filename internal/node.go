@@ -129,3 +129,21 @@ func (a *node) IsNumeric(args ...interface{}) anniePkg.Node {
 
 	return a
 }
+
+func (a *node) Validate(name string, callback func(value interface{}) string) anniePkg.Node {
+	d, ok := a.GetData().(map[string]interface{})
+
+	if !ok {
+		a.AddError(fmt.Sprintf("Could not validate '%s'. Current node must be a map[string]interface{} so value could not be extracted.", name))
+
+		return a
+	}
+
+	msg := callback(d[name])
+
+	if msg != "" {
+		a.AddError(msg)
+	}
+
+	return a
+}

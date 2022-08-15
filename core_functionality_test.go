@@ -1,6 +1,7 @@
 package annie
 
 import (
+	"fmt"
 	. "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 )
@@ -85,6 +86,40 @@ var _ = Describe("Minimal assertions", func() {
 			ann.Close()
 		})
 
+		It("should evaluate with Validate() and succeed", func() {
+			ann, err := NewAnnie("test_complex_config.yml")
+			gomega.Expect(err).Should(gomega.BeNil())
+			gomega.Expect(ann).ShouldNot(gomega.BeNil())
+
+			ann.Validate("configuration", func(value interface{}) string {
+				_, ok := value.(map[string]interface{})
+
+				if !ok {
+					return fmt.Sprintf("Node '%s' is not a map", "configuration")
+				}
+
+				return ""
+			}).
+				StepInto("configuration").
+				Validate("array", func(value interface{}) string {
+					_, ok := value.(string)
+
+					if !ok {
+						return fmt.Sprintf("Node '%s' is not a string", "array")
+					}
+
+					return ""
+				})
+
+			errs := ann.Errors()
+
+			gomega.Expect(errs).ShouldNot(gomega.BeEmpty())
+			gomega.Expect(errs).Should(gomega.HaveLen(1))
+			gomega.Expect(errs[0]).ShouldNot(gomega.BeNil())
+
+			ann.Close()
+		})
+
 		It("should evaluate multiple configuration value", func() {
 			ann, err := NewAnnie("test_complex_config.yml")
 			gomega.Expect(err).Should(gomega.BeNil())
@@ -103,6 +138,15 @@ var _ = Describe("Minimal assertions", func() {
 				IsString("entryString").
 				StepInto("entry").
 				CannotBeEmpty("arrayList").
+				Validate("arrayList", func(value interface{}) string {
+					_, ok := value.([]interface{})
+
+					if !ok {
+						return fmt.Sprintf("Node '%s' is not an array", "arrayList")
+					}
+
+					return ""
+				}).
 				IsArray("arrayList").
 				StepOut().
 				StepOut().
