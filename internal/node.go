@@ -26,19 +26,19 @@ func (a *node) StepInto(name string) anniePkg.Node {
 	}
 
 	if ok := valueEmpty(a.data[name]); ok {
-		a.annie.errors = append(a.annie.errors, buildError(fmt.Sprintf("Cannot step into a node '%s'. Node is empty", name)))
+		a.AddError(fmt.Sprintf("Cannot step into a node '%s'. Node is empty", name))
 	}
 
 	d, ok := a.data[name].(map[string]interface{})
 
 	if !ok {
-		a.annie.errors = append(a.annie.errors, buildError(fmt.Sprintf("Cannot step into a node '%s'. Node is not an indexable type (map[string]interface{})", name)))
+		a.AddError(fmt.Sprintf("Cannot step into a node '%s'. Node is not an indexable type (map[string]interface{})", name))
 
 		return a
 	}
 
 	if len(d) == 0 {
-		a.annie.errors = append(a.annie.errors, buildError(fmt.Sprintf("Cannot step into a node '%s'. Node is not an indexable type (map[string]interface{})", name)))
+		a.AddError(fmt.Sprintf("Cannot step into a node '%s'. Node is not an indexable type (map[string]interface{})", name))
 
 		return a
 	}
