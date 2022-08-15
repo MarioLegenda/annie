@@ -9,6 +9,7 @@ type node struct {
 	data   map[string]interface{}
 	parent *node
 	annie  *annie
+	ignore bool
 }
 
 func (a *node) GetData() interface{} {
@@ -20,6 +21,10 @@ func (a *node) AddError(err string) {
 }
 
 func (a *node) StepInto(name string) anniePkg.Node {
+	if a.ignore {
+		return a
+	}
+
 	if ok := valueEmpty(a.data[name]); ok {
 		a.annie.errors = append(a.annie.errors, buildError(fmt.Sprintf("Cannot step into a node '%s'. Node is empty", name)))
 	}
@@ -42,6 +47,10 @@ func (a *node) StepInto(name string) anniePkg.Node {
 }
 
 func (a *node) StepOut() anniePkg.Node {
+	if a.ignore {
+		return a
+	}
+
 	a.data = nil
 
 	if a.parent == nil {
@@ -60,6 +69,10 @@ func (a *node) StepOut() anniePkg.Node {
 }
 
 func (a *node) CannotBeEmpty(args ...interface{}) anniePkg.Node {
+	if a.ignore {
+		return &node{annie: a.annie, data: nil, parent: nil}
+	}
+
 	name, msg, err := extractArgs(args)
 
 	if err != nil {
@@ -74,6 +87,10 @@ func (a *node) CannotBeEmpty(args ...interface{}) anniePkg.Node {
 }
 
 func (a *node) IsMap(args ...interface{}) anniePkg.Node {
+	if a.ignore {
+		return &node{annie: a.annie, data: nil, parent: nil}
+	}
+
 	name, msg, err := extractArgs(args)
 
 	if err != nil {
@@ -89,6 +106,10 @@ func (a *node) IsMap(args ...interface{}) anniePkg.Node {
 }
 
 func (a *node) IsString(args ...interface{}) anniePkg.Node {
+	if a.ignore {
+		return &node{annie: a.annie, data: nil, parent: nil}
+	}
+
 	name, msg, err := extractArgs(args)
 
 	if err != nil {
@@ -103,6 +124,10 @@ func (a *node) IsString(args ...interface{}) anniePkg.Node {
 }
 
 func (a *node) IsArray(args ...interface{}) anniePkg.Node {
+	if a.ignore {
+		return &node{annie: a.annie, data: nil, parent: nil}
+	}
+
 	name, msg, err := extractArgs(args)
 
 	if err != nil {
@@ -117,6 +142,10 @@ func (a *node) IsArray(args ...interface{}) anniePkg.Node {
 }
 
 func (a *node) IsNumeric(args ...interface{}) anniePkg.Node {
+	if a.ignore {
+		return &node{annie: a.annie, data: nil, parent: nil}
+	}
+
 	name, msg, err := extractArgs(args)
 
 	if err != nil {
@@ -127,9 +156,5 @@ func (a *node) IsNumeric(args ...interface{}) anniePkg.Node {
 
 	isNumeric(a, name, msg)
 
-	return a
-}
-
-func (a *node) Equal(value interface{}) anniePkg.Node {
 	return a
 }
