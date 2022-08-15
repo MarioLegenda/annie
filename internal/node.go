@@ -59,35 +59,73 @@ func (a *node) StepOut() anniePkg.Node {
 	return p
 }
 
-func (a *node) CannotBeEmpty(node string) anniePkg.Node {
-	if a.data != nil {
-		assignIfEmpty(a, node, "")
+func (a *node) CannotBeEmpty(args ...interface{}) anniePkg.Node {
+	name, msg, err := extractArgs(args)
+
+	if err != nil {
+		a.AddError(err.Error())
+
+		return a
 	}
 
-	return a
-}
-
-func (a *node) IsMap(name string) anniePkg.Node {
-	assignIfEmpty(a, name, "")
-	isMap(a, name, "")
+	assignIfEmpty(a, name, msg)
 
 	return a
 }
 
-func (a *node) IsString(node string) anniePkg.Node {
-	isString(a, node, "")
+func (a *node) IsMap(args ...interface{}) anniePkg.Node {
+	name, msg, err := extractArgs(args)
+
+	if err != nil {
+		a.AddError(err.Error())
+
+		return a
+	}
+
+	assignIfEmpty(a, name, msg)
+	isMap(a, name, msg)
 
 	return a
 }
 
-func (a *node) IsArray(node string) anniePkg.Node {
-	isArray(a, node, "")
+func (a *node) IsString(args ...interface{}) anniePkg.Node {
+	name, msg, err := extractArgs(args)
+
+	if err != nil {
+		a.AddError(err.Error())
+
+		return a
+	}
+
+	isString(a, name, msg)
 
 	return a
 }
 
-func (a *node) IsNumeric(node string) anniePkg.Node {
-	isNumeric(a, node, "")
+func (a *node) IsArray(args ...interface{}) anniePkg.Node {
+	name, msg, err := extractArgs(args)
+
+	if err != nil {
+		a.AddError(err.Error())
+
+		return a
+	}
+
+	isArray(a, name, msg)
+
+	return a
+}
+
+func (a *node) IsNumeric(args ...interface{}) anniePkg.Node {
+	name, msg, err := extractArgs(args)
+
+	if err != nil {
+		a.AddError(err.Error())
+
+		return a
+	}
+
+	isNumeric(a, name, msg)
 
 	return a
 }

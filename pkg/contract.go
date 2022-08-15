@@ -6,11 +6,11 @@ type Stepper interface {
 }
 
 type Validations interface {
-	CannotBeEmpty(node string) Node
-	IsString(node string) Node
-	IsNumeric(node string) Node
-	IsArray(node string) Node
-	IsMap(node string) Node
+	CannotBeEmpty(args ...interface{}) Node
+	IsString(args ...interface{}) Node
+	IsNumeric(args ...interface{}) Node
+	IsArray(args ...interface{}) Node
+	IsMap(args ...interface{}) Node
 }
 
 type Evaluator interface {

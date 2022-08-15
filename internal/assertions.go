@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 )
@@ -132,4 +133,38 @@ func isMap(node internalAction, name string, msg string) {
 
 		return
 	}
+}
+
+func extractArgs(args []interface{}) (string, string, error) {
+	var n, m string
+
+	if len(args) == 0 {
+		return "", "", errors.New("Invalid number of arguments. Function signature: func (string, string)")
+	}
+
+	if len(args) > 2 {
+		return "", "", errors.New("Invalid number of arguments. Function signature: func (string, string)")
+	}
+
+	if len(args) == 1 {
+		name, ok := args[0].(string)
+
+		if !ok {
+			return "", "", errors.New("Invalid number of arguments. Function signature func (string, string)")
+		}
+
+		n = name
+	}
+
+	if len(args) == 2 {
+		name, ok := args[1].(string)
+
+		if !ok {
+			return "", "", errors.New("Invalid number of arguments. Function signature func (string, string)")
+		}
+
+		m = name
+	}
+
+	return n, m, nil
 }
