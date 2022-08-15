@@ -17,19 +17,22 @@ func valueEmpty(v interface{}) bool {
 	return false
 }
 
-func assignIfEmpty(node internalAction, name string) bool {
+func assignIfEmpty(node internalAction, name string, msg string) bool {
 	d, ok := node.GetData().(map[string]interface{})
+	if msg == "" {
+		msg = fmt.Sprintf("Node '%s' cannot be empty", name)
+	}
 
 	if !ok {
 		if valueEmpty(node.GetData()) {
-			node.AddError(fmt.Sprintf("Node '%s' cannot be empty", name))
+			node.AddError(msg)
 
 			return true
 		}
 	}
 
 	if valueEmpty(d[name]) {
-		node.AddError(fmt.Sprintf("Node '%s' cannot be empty", name))
+		node.AddError(msg)
 
 		return true
 	}
@@ -37,11 +40,14 @@ func assignIfEmpty(node internalAction, name string) bool {
 	return false
 }
 
-func isString(node internalAction, name string) {
+func isString(node internalAction, name string, msg string) {
 	d, ok := node.GetData().(map[string]interface{})
+	if msg == "" {
+		msg = fmt.Sprintf("Node '%s' is not a string", name)
+	}
 
 	if !ok {
-		node.AddError(fmt.Sprintf("Node '%s' is not a string", name))
+		node.AddError(msg)
 
 		return
 	}
@@ -49,15 +55,18 @@ func isString(node internalAction, name string) {
 	_, ok = d[name].(string)
 
 	if !ok {
-		node.AddError(fmt.Sprintf("Node '%s' is not a string", name))
+		node.AddError(msg)
 	}
 }
 
-func isNumeric(node internalAction, name string) {
+func isNumeric(node internalAction, name string, msg string) {
 	d, ok := node.GetData().(map[string]interface{})
+	if msg == "" {
+		msg = fmt.Sprintf("Node '%s' is not a numeric value", name)
+	}
 
 	if !ok {
-		node.AddError(fmt.Sprintf("Node '%s' is not a numeric value", name))
+		node.AddError(msg)
 
 		return
 	}
@@ -68,7 +77,7 @@ func isNumeric(node internalAction, name string) {
 		_, err := strconv.Atoi(v)
 
 		if err != nil {
-			node.AddError(fmt.Sprintf("Node '%s' is not a numeric value", name))
+			node.AddError(msg)
 
 			return
 		}
@@ -77,29 +86,35 @@ func isNumeric(node internalAction, name string) {
 	_, ok = d[name].(int)
 
 	if !ok {
-		node.AddError(fmt.Sprintf("Node '%s' is not a numeric value", name))
+		node.AddError(msg)
 	}
 }
 
-func isArray(node internalAction, name string) {
+func isArray(node internalAction, name string, msg string) {
 	d, ok := node.GetData().(map[string]interface{})
+	if msg == "" {
+		msg = fmt.Sprintf("Node '%s' is not an array", name)
+	}
 
 	if !ok {
-		node.AddError(fmt.Sprintf("Node '%s' is not an array", name))
+		node.AddError(msg)
 	}
 
 	_, ok = d[name].([]interface{})
 
 	if !ok {
-		node.AddError(fmt.Sprintf("Node '%s' is not an array", name))
+		node.AddError(msg)
 	}
 }
 
-func isMap(node internalAction, name string) {
+func isMap(node internalAction, name string, msg string) {
 	d, ok := node.GetData().(map[string]interface{})
+	if msg == "" {
+		msg = fmt.Sprintf("Node '%s' is not a map", name)
+	}
 
 	if !ok {
-		node.AddError(fmt.Sprintf("Node '%s' is not a map", name))
+		node.AddError(msg)
 
 		return
 	}
@@ -107,13 +122,13 @@ func isMap(node internalAction, name string) {
 	v, ok := d[name].(map[string]interface{})
 
 	if !ok {
-		node.AddError(fmt.Sprintf("Node '%s' is not a map", name))
+		node.AddError(msg)
 
 		return
 	}
 
 	if len(v) == 0 {
-		node.AddError(fmt.Sprintf("Node '%s' is not a map", name))
+		node.AddError(msg)
 
 		return
 	}

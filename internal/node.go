@@ -61,33 +61,33 @@ func (a *node) StepOut() anniePkg.Node {
 
 func (a *node) CannotBeEmpty(node string) anniePkg.Node {
 	if a.data != nil {
-		assignIfEmpty(a, node)
+		assignIfEmpty(a, node, "")
 	}
 
 	return a
 }
 
 func (a *node) IsMap(name string) anniePkg.Node {
-	assignIfEmpty(a, name)
-	isMap(a, name)
+	assignIfEmpty(a, name, "")
+	isMap(a, name, "")
 
 	return a
 }
 
 func (a *node) IsString(node string) anniePkg.Node {
-	isString(a, node)
+	isString(a, node, "")
 
 	return a
 }
 
 func (a *node) IsArray(node string) anniePkg.Node {
-	isArray(a, node)
+	isArray(a, node, "")
 
 	return a
 }
 
 func (a *node) IsNumeric(node string) anniePkg.Node {
-	isNumeric(a, node)
+	isNumeric(a, node, "")
 
 	return a
 }
