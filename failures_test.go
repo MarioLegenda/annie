@@ -6,7 +6,7 @@ import (
 )
 
 var _ = Describe("Failures and safety", func() {
-	It("should fail if stepping into primitive type node and ignore rest of them", func() {
+	It("should fail if stepping into primitive type node and ignore rest of them from annie", func() {
 		ann, err := NewAnnie("test_complex_config.yml")
 		gomega.Expect(err).Should(gomega.BeNil())
 		gomega.Expect(ann).ShouldNot(gomega.BeNil())
@@ -17,8 +17,28 @@ var _ = Describe("Failures and safety", func() {
 		errs := ann.Errors()
 
 		gomega.Expect(errs).ShouldNot(gomega.BeEmpty())
-		gomega.Expect(errs).Should(gomega.HaveLen(1))
+		gomega.Expect(errs).Should(gomega.HaveLen(2))
 		gomega.Expect(errs[0]).ShouldNot(gomega.BeNil())
+		gomega.Expect(errs[1]).ShouldNot(gomega.BeNil())
+
+		ann.Close()
+	})
+
+	It("should fail if stepping into primitive type node and ignore rest of them from internal node", func() {
+		ann, err := NewAnnie("test_complex_config.yml")
+		gomega.Expect(err).Should(gomega.BeNil())
+		gomega.Expect(ann).ShouldNot(gomega.BeNil())
+
+		ann.StepInto("configuration").
+			StepInto("simpleString").
+			CannotBeEmpty("options")
+
+		errs := ann.Errors()
+
+		gomega.Expect(errs).ShouldNot(gomega.BeEmpty())
+		gomega.Expect(errs).Should(gomega.HaveLen(2))
+		gomega.Expect(errs[0]).ShouldNot(gomega.BeNil())
+		gomega.Expect(errs[1]).ShouldNot(gomega.BeNil())
 
 		ann.Close()
 	})

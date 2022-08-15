@@ -9,7 +9,6 @@ type node struct {
 	data   map[string]interface{}
 	parent *node
 	annie  *annie
-	ignore bool
 }
 
 func (a *node) GetData() interface{} {
@@ -21,24 +20,20 @@ func (a *node) AddError(err string) {
 }
 
 func (a *node) StepInto(name string) anniePkg.Node {
-	if a.ignore {
-		return a
-	}
-
 	if ok := valueEmpty(a.data[name]); ok {
-		a.AddError(fmt.Sprintf("Cannot step into a node '%s'. Node is empty", name))
+		a.AddError(fmt.Sprintf("Cannot step into a node '%s'. Node is empty. Subsequent node assertions will be made on the current node", name))
 	}
 
 	d, ok := a.data[name].(map[string]interface{})
 
 	if !ok {
-		a.AddError(fmt.Sprintf("Cannot step into a node '%s'. Node is not an indexable type (map[string]interface{})", name))
+		a.AddError(fmt.Sprintf("Cannot step into a node '%s'. Node is not an indexable type (map[string]interface{}). Subsequent node assertions will be made on the current node", name))
 
 		return a
 	}
 
 	if len(d) == 0 {
-		a.AddError(fmt.Sprintf("Cannot step into a node '%s'. Node is not an indexable type (map[string]interface{})", name))
+		a.AddError(fmt.Sprintf("Cannot step into a node '%s'. Node is not an indexable type (map[string]interface{}). Subsequent node assertions will be made on the current node", name))
 
 		return a
 	}
@@ -47,10 +42,6 @@ func (a *node) StepInto(name string) anniePkg.Node {
 }
 
 func (a *node) StepOut() anniePkg.Node {
-	if a.ignore {
-		return a
-	}
-
 	a.data = nil
 
 	if a.parent == nil {
@@ -69,10 +60,6 @@ func (a *node) StepOut() anniePkg.Node {
 }
 
 func (a *node) CannotBeEmpty(args ...interface{}) anniePkg.Node {
-	if a.ignore {
-		return &node{annie: a.annie, data: nil, parent: nil}
-	}
-
 	name, msg, err := extractArgs(args)
 
 	if err != nil {
@@ -87,10 +74,6 @@ func (a *node) CannotBeEmpty(args ...interface{}) anniePkg.Node {
 }
 
 func (a *node) IsMap(args ...interface{}) anniePkg.Node {
-	if a.ignore {
-		return &node{annie: a.annie, data: nil, parent: nil}
-	}
-
 	name, msg, err := extractArgs(args)
 
 	if err != nil {
@@ -106,10 +89,6 @@ func (a *node) IsMap(args ...interface{}) anniePkg.Node {
 }
 
 func (a *node) IsString(args ...interface{}) anniePkg.Node {
-	if a.ignore {
-		return &node{annie: a.annie, data: nil, parent: nil}
-	}
-
 	name, msg, err := extractArgs(args)
 
 	if err != nil {
@@ -124,10 +103,6 @@ func (a *node) IsString(args ...interface{}) anniePkg.Node {
 }
 
 func (a *node) IsArray(args ...interface{}) anniePkg.Node {
-	if a.ignore {
-		return &node{annie: a.annie, data: nil, parent: nil}
-	}
-
 	name, msg, err := extractArgs(args)
 
 	if err != nil {
@@ -142,10 +117,6 @@ func (a *node) IsArray(args ...interface{}) anniePkg.Node {
 }
 
 func (a *node) IsNumeric(args ...interface{}) anniePkg.Node {
-	if a.ignore {
-		return &node{annie: a.annie, data: nil, parent: nil}
-	}
-
 	name, msg, err := extractArgs(args)
 
 	if err != nil {
