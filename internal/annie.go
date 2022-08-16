@@ -33,16 +33,16 @@ func (a *annie) StepInto(name string) anniePkg.Node {
 	if !ok {
 		a.AddError(fmt.Sprintf("Cannot step into a node '%s'. Node is not an indexable type (map[string]interface{}). Subsequent node assertions will be made on the current node", name))
 
-		return &node{annie: a, data: nil}
+		return newNode(a, nil, nil)
 	}
 
 	if len(d) == 0 {
 		a.AddError(fmt.Sprintf("Cannot step into a node '%s'. Node is not an indexable type (map[string]interface{}). Subsequent node assertions will be made on the current node", name))
 
-		return &node{annie: a, data: nil}
+		return newNode(a, nil, nil)
 	}
 
-	return &node{annie: a, data: d}
+	return newNode(a, nil, d)
 }
 
 func (a *annie) StepOut() anniePkg.Node {

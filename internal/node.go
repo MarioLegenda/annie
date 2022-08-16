@@ -11,6 +11,10 @@ type node struct {
 	annie  *annie
 }
 
+func newNode(annie *annie, parent *node, data map[string]interface{}) *node {
+	return &node{annie: annie, data: data, parent: parent}
+}
+
 func (a *node) GetData() interface{} {
 	return a.data
 }
@@ -38,7 +42,7 @@ func (a *node) StepInto(name string) anniePkg.Node {
 		return a
 	}
 
-	return &node{annie: a.annie, data: d, parent: a}
+	return newNode(a.annie, a, d)
 }
 
 func (a *node) StepOut() anniePkg.Node {
