@@ -8,10 +8,10 @@ import (
 type node struct {
 	data   map[string]interface{}
 	parent *node
-	annie  *annie
+	annie  *parent
 }
 
-func newNode(annie *annie, parent *node, data map[string]interface{}) *node {
+func newNode(annie *parent, parent *node, data map[string]interface{}) *node {
 	return &node{annie: annie, data: data, parent: parent}
 }
 
@@ -150,4 +150,37 @@ func (a *node) Validate(name string, callback func(value interface{}) string) an
 	}
 
 	return a
+}
+
+func (a *node) If(name string, cond ...func(node anniePkg.Node) string) {
+	if len(cond) == 0 {
+		a.AddError(fmt.Sprintf("Invalid '%s' node 'If' method usage. 'If' method must have at least one condition function", name))
+
+		return
+	}
+
+	d, ok := a.GetData().(map[string]interface{})
+	if !ok {
+		a.AddError(fmt.Sprintf("Invalid 's' node. 'If' method must be used with a map[string]interface{} type value, not promitive types", name))
+
+		return
+	}
+
+	passed := false
+	errs := make([]string, 0)
+	for _, c := range cond {
+		msg := c(newNode(a.annie, nil, d))
+
+		if msg != "" {
+			errs = append(errs, msg)
+		} else {
+			passed = true
+		}
+	}
+
+	if !passed {
+		for _, err := range errs {
+			a.AddError(err)
+		}
+	}
 }

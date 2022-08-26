@@ -10,20 +10,20 @@ type internalAction interface {
 	AddError(err string)
 }
 
-type annie struct {
+type parent struct {
 	data   map[string]interface{}
 	errors []error
 }
 
-func (a *annie) AddError(err string) {
+func (a *parent) AddError(err string) {
 	a.errors = append(a.errors, buildError(err))
 }
 
-func (a *annie) Errors() []error {
+func (a *parent) Errors() []error {
 	return a.errors
 }
 
-func (a *annie) StepInto(name string) anniePkg.Node {
+func (a *parent) StepInto(name string) anniePkg.Node {
 	if ok := valueEmpty(a.data[name]); ok {
 		a.AddError(fmt.Sprintf("Cannot step into a node '%s'. Node is empty. Subsequent node assertions will be made on the current node", name))
 	}
@@ -45,11 +45,11 @@ func (a *annie) StepInto(name string) anniePkg.Node {
 	return newNode(a, nil, d)
 }
 
-func (a *annie) StepOut() anniePkg.Node {
+func (a *parent) StepOut() anniePkg.Node {
 	return a
 }
 
-func (a *annie) CannotBeEmpty(args ...interface{}) anniePkg.Node {
+func (a *parent) CannotBeEmpty(args ...interface{}) anniePkg.Node {
 	name, msg, err := extractArgs(args)
 
 	if err != nil {
@@ -63,7 +63,7 @@ func (a *annie) CannotBeEmpty(args ...interface{}) anniePkg.Node {
 	return a
 }
 
-func (a *annie) IsMap(args ...interface{}) anniePkg.Node {
+func (a *parent) IsMap(args ...interface{}) anniePkg.Node {
 	name, msg, err := extractArgs(args)
 
 	if err != nil {
@@ -78,7 +78,7 @@ func (a *annie) IsMap(args ...interface{}) anniePkg.Node {
 	return a
 }
 
-func (a *annie) IsString(args ...interface{}) anniePkg.Node {
+func (a *parent) IsString(args ...interface{}) anniePkg.Node {
 	name, msg, err := extractArgs(args)
 
 	if err != nil {
@@ -92,7 +92,7 @@ func (a *annie) IsString(args ...interface{}) anniePkg.Node {
 	return a
 }
 
-func (a *annie) IsArray(args ...interface{}) anniePkg.Node {
+func (a *parent) IsArray(args ...interface{}) anniePkg.Node {
 	name, msg, err := extractArgs(args)
 
 	if err != nil {
@@ -106,7 +106,7 @@ func (a *annie) IsArray(args ...interface{}) anniePkg.Node {
 	return a
 }
 
-func (a *annie) IsNumeric(args ...interface{}) anniePkg.Node {
+func (a *parent) IsNumeric(args ...interface{}) anniePkg.Node {
 	name, msg, err := extractArgs(args)
 
 	if err != nil {
@@ -120,7 +120,7 @@ func (a *annie) IsNumeric(args ...interface{}) anniePkg.Node {
 	return a
 }
 
-func (a *annie) Validate(name string, callback func(value interface{}) string) anniePkg.Node {
+func (a *parent) Validate(name string, callback func(value interface{}) string) anniePkg.Node {
 	d, ok := a.GetData().(map[string]interface{})
 
 	if !ok {
@@ -138,11 +138,44 @@ func (a *annie) Validate(name string, callback func(value interface{}) string) a
 	return a
 }
 
-func (a *annie) Close() {
+func (a *parent) If(name string, cond ...func(node anniePkg.Node) string) {
+	if len(cond) == 0 {
+		a.AddError(fmt.Sprintf("Invalid '%s' node 'If' method usage. 'If' method must have at least one condition function", name))
+
+		return
+	}
+
+	d, ok := a.GetData().(map[string]interface{})
+	if !ok {
+		a.AddError(fmt.Sprintf("Invalid 's' node. 'If' method must be used with a map[string]interface{} type value, not promitive types", name))
+
+		return
+	}
+
+	passed := false
+	errs := make([]string, 0)
+	for _, c := range cond {
+		msg := c(newNode(a, nil, d))
+
+		if msg != "" {
+			errs = append(errs, msg)
+		} else {
+			passed = true
+		}
+	}
+
+	if !passed {
+		for _, err := range errs {
+			a.AddError(err)
+		}
+	}
+}
+
+func (a *parent) Close() {
 	a.data = nil
 	a.errors = nil
 }
 
-func (a *annie) GetData() interface{} {
+func (a *parent) GetData() interface{} {
 	return a.data
 }

@@ -174,7 +174,8 @@ var _ = Describe("Real world", func() {
 
 			ann.CannotBeEmpty("version").
 				IsString("version").
-				IsMap("services")
+				IsMap("services").
+				StepInto("services")
 
 			ann.Close()
 		})

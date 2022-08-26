@@ -286,4 +286,20 @@ var _ = Describe("Failures and safety", func() {
 
 		ann.Close()
 	})
+
+	It("should fail if 'If' does not provide any condition function", func() {
+		ann, err := NewAnnie("test_complex_config.yml")
+		gomega.Expect(err).Should(gomega.BeNil())
+		gomega.Expect(ann).ShouldNot(gomega.BeNil())
+
+		ann.If("configuration")
+
+		errs := ann.Errors()
+
+		gomega.Expect(errs).ShouldNot(gomega.BeEmpty())
+		gomega.Expect(errs).Should(gomega.HaveLen(1))
+		gomega.Expect(errs[0]).ShouldNot(gomega.BeNil())
+
+		ann.Close()
+	})
 })

@@ -5,6 +5,18 @@ type Stepper interface {
 	StepOut() Node
 }
 
+type Closer interface {
+	Close()
+}
+
+type Errors interface {
+	Errors() []error
+}
+
+type Conditional interface {
+	If(name string, cond ...func(node Node) string)
+}
+
 type Validations interface {
 	CannotBeEmpty(args ...interface{}) Node
 	IsString(args ...interface{}) Node
@@ -19,12 +31,14 @@ type Evaluator interface {
 	Validations
 }
 
-type Annie interface {
-	Close()
-	Errors() []error
+type Parent interface {
+	Closer
+	Errors
 	Evaluator
+	Conditional
 }
 
 type Node interface {
 	Evaluator
+	Conditional
 }

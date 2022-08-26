@@ -5,6 +5,6 @@ import (
 	"annie/pkg"
 )
 
-func NewAnnie(path string) (pkg.Annie, error) {
+func NewAnnie(path string) (pkg.Parent, error) {
 	return internal.NewAnnie(path)
 }
